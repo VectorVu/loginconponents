@@ -1,0 +1,104 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap");
+
+* {
+  font-family: "Montserrat", sans-serif !important;
+}
+
+body {
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #212529;
+  text-align: left;
+  background-color: #f5f8fa;
+}
+
+.login-form{
+  width: 100vw;
+  height: 100vh;
+  background: url("https://br-art.vn/wp-content/uploads/2017/07/background-phong-canh-48-768x432.jpg") no-repeat center / cover;
+  background-size: 100%;
+}
+
+.login-container {
+  height: 450px;
+  margin: auto;
+  padding: 0px 30px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, .3);
+  border-radius: 35px;
+  transition: 0.9s;
+}
+.login-container:hover{
+  background-color: rgba(0, 0, 0, .7);
+} 
+
+.register-container:hover {
+  background-color: rgba(0, 0, 0, .7);
+}
+.register-container {
+  height: 650px;
+  margin: auto;
+  padding: 0px 30px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, .3);
+  border-radius: 35px;
+  transition: 0.9s;
+}
+
+.myInputContain{
+  color: #fff;
+  display: flex;
+  margin: 20px;
+}
+.myInput{
+  width: 355px;
+  background-color: transparent;
+  color: #fff;
+  border: none ;
+}
+::placeholder{
+  color: #fff;
+}
+.myLabel{
+  width: 160px;
+}
+.big-title {
+  text-align: center;
+  font-size: 32px;
+  line-height: 30px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.form-control {
+  height: 60px;
+  border-radius: 10px;
+}
+.label-input {
+  line-height: 60px;
+}
+.myError{
+  color: red;
+  font-size: 20px;
+}
+.ver-contain{
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  height: 500px;
+  align-items: center;
+  margin: 100px auto;
+}
+#email-notifi{
+  font-size: 30px;
+  color: cornflowerblue
+}
+#disciption{
+  text-align: center;
+}
