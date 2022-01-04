@@ -33,7 +33,7 @@ class LoginScreen {
 
         this.$link = document.createElement("a");
         this.$link.innerText = "Register";
-        this.$link.setAttribute("href", "../../../singup.html");
+        this.$link.setAttribute("href", "singup.html");
         this.$linkContian.appendChild(this.$link);
 
         this.$email = new InputConponent(

@@ -35,7 +35,7 @@ class RegisterScreen {
 
         this.$link = document.createElement("a");
         this.$link.innerText = "Login";
-        this.$link.setAttribute("href", "../../../index.html");
+        this.$link.setAttribute("href", "index.html");
 
         this.$linkContian.appendChild(this.$link);
 
@@ -120,7 +120,7 @@ class RegisterScreen {
         }
         if (!isError) {
             alert("Tạo tài khoản thành công! Hãy xác nhận tài khoản.")
-            location.assign("../../../verify.html");
+            location.assign("verify.html");
         }
     }
     render() {
