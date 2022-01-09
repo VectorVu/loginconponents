@@ -1,6 +1,11 @@
 import ButtonComponent from "../../conponent/button.js";
 import InputConponent from "../../conponent/input.js"
 import { checkComFirm, checkMail, checkName, checkPassword } from "../../common/validdate.js"
+import LoginScreen from "../login/login.js";
+import app from "../../index.js";
+import verifiScreen from "../verifi/verifi.js";
+import { createNewAccount } from "../firebase/auth.js";
+
 
 class RegisterScreen {
     $email;
@@ -35,7 +40,7 @@ class RegisterScreen {
 
         this.$link = document.createElement("a");
         this.$link.innerText = "Login";
-        this.$link.setAttribute("href", "index.html");
+        this.$link.addEventListener("click", this.changeScreen);
 
         this.$linkContian.appendChild(this.$link);
 
@@ -73,55 +78,50 @@ class RegisterScreen {
 
 
     }
+    changeScreen = (e) => {
+        e.preventDefault();
+        const login = new LoginScreen();
+        app.changeActiveScreen(login);
 
-    handleSubmit = (e) => {
+    }
+    handleSubmit = async (e) => {
         e.preventDefault();
         const { email, uname, password, confirm } = e.target;
         let isError = false;
-        let errorFlag = [0, 0, 0, 0];
+
         if (checkMail(email.value) !== null) {
             isError = true;
-            errorFlag[0] = 1;
             this.$email.setError(checkMail(email.value));
         }
+        else this.$email.setError("");
+
         if (checkPassword(password.value) !== null) {
             isError = true;
-            errorFlag[1] = 1;
             this.$password.setError(checkPassword(password.value));
         }
+        else this.$password.setError("");
         if (checkName(uname.value) !== null) {
             isError = true;
-            errorFlag[2] = 1;
             this.$uname.setError(checkName(uname.value));
         }
+        else this.$uname.setError("");
+
         if (checkComFirm(password.value, confirm.value) !== null) {
             isError = true;
-            errorFlag[3] = 1;
             this.$confirmPwd.setError(checkComFirm(password.value, confirm.value));
         }
-        if (errorFlag[0] === 0) {
-            this.$email.$error.classList.remove("d-block");
-            this.$email.$error.classList.add("d-none");
-        }
-        if (errorFlag[1] === 0) {
-            this.$password.$error.classList.remove("d-block");
-            this.$password.$error.classList.add("d-none");
-        }
+        else this.$confirmPwd.setError("");
 
-        if (errorFlag[2] === 0) {
-
-            this.$uname.$error.classList.remove("d-block");
-            this.$uname.$error.classList.add("d-none");
-        }
-        if (errorFlag[3] === 0) {
-
-            this.$confirmPwd.$error.classList.remove("d-block");
-            this.$confirmPwd.$error.classList.add("d-none");
-        }
         if (!isError) {
-            alert("Tạo tài khoản thành công! Hãy xác nhận tài khoản.")
-            location.assign("verify.html");
+            this.setLoading();
+            await createNewAccount(email.value, password.value);
+            const verify = new verifiScreen();
+            app.changeActiveScreen(verify);
         }
+    }
+    setLoading() {
+        this.$btnSubmit.render().innerText = "";
+        this.$btnSubmit.render().innerHTML = `<div class="loader"></div>`;
     }
     render() {
         this.$formRegister.append(
@@ -131,7 +131,8 @@ class RegisterScreen {
             this.$password.render(),
             this.$confirmPwd.render(),
             this.$btnSubmit.render(),
-            this.$linkContian);
+            this.$linkContian
+        );
         this.$container.append(this.$formRegister);
         return this.$container;
     }

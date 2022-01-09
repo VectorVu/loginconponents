@@ -1,7 +1,9 @@
 import ButtonComponent from "../../conponent/button.js";
 import InputConponent from "../../conponent/input.js"
 import { checkMail, checkPassword } from "../../common/validdate.js"
-
+import RegisterScreen from "../Register/register.js";
+import app from "../../index.js";
+import { loginAccount } from "../firebase/auth.js"
 class LoginScreen {
     $email;
     $password;
@@ -33,7 +35,7 @@ class LoginScreen {
 
         this.$link = document.createElement("a");
         this.$link.innerText = "Register";
-        this.$link.setAttribute("href", "singup.html");
+        this.$link.addEventListener("click", this.changeScreen);
         this.$linkContian.appendChild(this.$link);
 
         this.$email = new InputConponent(
@@ -56,31 +58,30 @@ class LoginScreen {
 
 
     }
+    changeScreen = (e) => {
+        e.preventDefault();
+        const register = new RegisterScreen();
+        app.changeActiveScreen(register);
+
+    }
     handleSubmit = (e) => {
         e.preventDefault();
         const { email, password } = e.target;
         let isError = false;
-        let errorFlag = [0, 0];
         if (checkMail(email.value) !== null) {
             isError = true;
-            errorFlag[0] = 1;
             this.$email.setError(checkMail(email.value));
         }
+        else this.$email.setError("");
+
         if (checkPassword(password.value) !== null) {
             isError = true;
-            errorFlag[1] = 1;
             this.$password.setError(checkPassword(password.value));
         }
-        if (errorFlag[0] === 0) {
-            this.$email.$error.classList.remove("d-block");
-            this.$email.$error.classList.add("d-none");
-        }
-        if (errorFlag[1] === 0) {
-            this.$password.$error.classList.remove("d-block");
-            this.$password.$error.classList.add("d-none");
-        }
+        else this.$password.setError("");
+
         if (!isError) {
-            console.log("Dang nhap thanh cong");
+            loginAccount(email.value, password.value);
         }
     }
     render() {
