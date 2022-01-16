@@ -123,7 +123,7 @@ class RegisterScreen {
         this.$btnSubmit.render().innerText = "";
         this.$btnSubmit.render().innerHTML = `<div class="loader"></div>`;
     }
-    render() {
+    render(appEle) {
         this.$formRegister.append(
             this.$titleScreen,
             this.$email.render(),
@@ -134,7 +134,7 @@ class RegisterScreen {
             this.$linkContian
         );
         this.$container.append(this.$formRegister);
-        return this.$container;
+        appEle.appendChild(this.$container);
     }
 
 }

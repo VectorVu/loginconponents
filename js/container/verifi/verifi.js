@@ -1,6 +1,5 @@
 class verifiScreen {
     $verifiContain;
-
     constructor() {
         this.$verifiContain = document.createElement("div");
         this.$verifiContain.innerHTML = `
@@ -13,8 +12,8 @@ class verifiScreen {
     </div>`
 
     }
-    render() {
-        return this.$verifiContain;
+    render(appEle) {
+        appEle.appendChild(this.$verifiContain);
     }
 
 }

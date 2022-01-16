@@ -32,3 +32,9 @@ export const checkName = (uname) => {
     if (!re.test(removeAscent(uname))) return "User name is invalid!!!";
     return null;
 }
+export const checkVNPhoneNumber = (phone)=>{
+    if(!phone || phone.length === 0) return "Phone Number is require!!!";
+    const vnf_regex = /((09|03|07|08|05)+([0-9]{8})\b)/g;
+    if(!vnf_regex.test(phone)) return "Phone Number is invalid!!!";
+    return null;
+}

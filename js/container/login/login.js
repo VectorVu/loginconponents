@@ -4,6 +4,7 @@ import { checkMail, checkPassword } from "../../common/validdate.js"
 import RegisterScreen from "../Register/register.js";
 import app from "../../index.js";
 import { loginAccount } from "../firebase/auth.js"
+import MainScreen from "../main/main.js";
 class LoginScreen {
     $email;
     $password;
@@ -64,7 +65,7 @@ class LoginScreen {
         app.changeActiveScreen(register);
 
     }
-    handleSubmit = (e) => {
+    handleSubmit = async (e) => {
         e.preventDefault();
         const { email, password } = e.target;
         let isError = false;
@@ -81,10 +82,12 @@ class LoginScreen {
         else this.$password.setError("");
 
         if (!isError) {
-            loginAccount(email.value, password.value);
+           const userLogin = await loginAccount(email.value, password.value);
+           const mainScreen = new MainScreen();
+           app.changeActiveScreen(mainScreen);
         }
     }
-    render() {
+    render(appEle) {
         this.$formLogin.append(
             this.$titleScreen,
             this.$email.render(),
@@ -93,8 +96,7 @@ class LoginScreen {
             this.$linkContian
         );
         this.$container.append(this.$formLogin);
-        return this.$container;
-
+        appEle.appendChild(this.$container);
     }
 
 }

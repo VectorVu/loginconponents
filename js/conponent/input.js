@@ -28,6 +28,12 @@ class InputConponent {
         this.$error.classList.add("myError", "mt-2", "d-none");
 
     }
+    setAttribute(name, value){
+        this.$input.setAttribute(name, value);
+    }
+    setEventListener(event, callBackFn){
+        this.$input.addEventListener(event, callBackFn);
+    }
     setError(mess) {
         this.$error.innerText = mess;
         this.$error.classList.remove("d-none");

@@ -1,8 +1,30 @@
+import inforScreen from "./container/infor/infor.js";
 import LoginScreen from "./container/login/login.js";
+import MainScreen from "./container/main/main.js";
+import verifiScreen from "./container/verifi/verifi.js";
+import RegisterScreen from "./container/Register/register.js";
+
+
 
 class App {
     $activeScreen;
-    constructor() { }
+    constructor() {
+        this.setUpAuthListener();
+        // this.changeActiveScreen(new inforScreen())
+    }
+    setUpAuthListener(){
+        firebase.auth().onAuthStateChanged((user) => {
+            let screen;
+            if (user && user.emailVerified) {
+             screen = new inforScreen();
+            } else if (user && !user.emailVerified) {
+                screen = new verifiScreen();
+            } else {
+              screen = new LoginScreen();
+            }
+            this.changeActiveScreen(screen);
+          });
+    }
     changeActiveScreen(screen) {
         const appEle = document.getElementById("app");
         if (appEle) {
@@ -10,12 +32,10 @@ class App {
                 appEle.innerHTML = "";
             }
             this.$activeScreen = screen;
-            appEle.appendChild(screen.render());
+            screen.render(appEle);
         }
     }
 }
 const app = new App();
-const signIn = new LoginScreen();
-app.changeActiveScreen(signIn);
 export default app;
 
