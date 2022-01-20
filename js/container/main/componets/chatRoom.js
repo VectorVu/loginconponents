@@ -48,8 +48,8 @@ class ChatRoom {
 
         this.$btnDelete = document.createElement("div");
         this.$btnDelete.classList.add("btn-delete");
-        // this.$btnDelete.setAttribute("data-bs-toggle", "modal");
-        // this.$btnDelete.setAttribute("data-bs-target", "#deleteModal");
+        this.$btnDelete.setAttribute("data-bs-toggle", "modal");
+        this.$btnDelete.setAttribute("data-bs-target", "#deleteModal");
         this.$btnDelete.addEventListener("click", this.handleDelete);
         this.$btnDelete.innerText = "-";
 
