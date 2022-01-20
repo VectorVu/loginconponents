@@ -16,7 +16,7 @@ async function createUser(email, name, phone, imageUrl) {
         let errorMessage = error.message;
         // ..
         console.log(errorCode, errorMessage);
-        _noti.error(errorCode, errorMessage);
+        throw error;
     }
 }
 async function getUserByEmail(email) {
@@ -28,38 +28,23 @@ async function getUserByEmail(email) {
         if (querySnapshot.docs.length === 0) {
             return null;
         }
-        return querySnapshot.docs[0].data();
-    } catch (error) {
-        let errorCode = error.code;
-        let errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-        _noti.error(errorCode, errorMessage);
-    }
-}
-async function getUserStoreID(email) {
-    try {
-        const querySnapshot = await db
-            .collection("users")
-            .where("email", "==", email)
-            .get();
-        if (querySnapshot.docs.length === 0) {
-            return null;
+        return {
+            id:querySnapshot.docs[0].id,
+            ...querySnapshot.docs[0].data(),
         }
-        return querySnapshot.docs[0].id;
     } catch (error) {
         let errorCode = error.code;
         let errorMessage = error.message;
         console.log(errorCode, errorMessage);
-        _noti.error(errorCode, errorMessage);
+        throw error;
     }
 }
-async function updateUserData(email, name, phone, imageUrl) {
+
+async function updateUserData( uid, name, phone, imageUrl) {
     try {
-        const userID = await getUserStoreID(email)
-        console.log(userID);
-        await db
+        const reponse = await db
             .collection("users")
-            .doc(userID)
+            .doc(uid)
             .update({
                 name,
                 phone,
@@ -69,7 +54,58 @@ async function updateUserData(email, name, phone, imageUrl) {
         let errorCode = error.code;
         let errorMessage = error.message;
         console.log(errorCode, errorMessage);
-        _noti.error(errorCode, errorMessage);
+        throw error;
     }
 }
-export { createUser, getUserByEmail, updateUserData }
+async function createChat(name, imageUrl, desc, users, email){
+    try {
+        const reponse = await db.collection("chat").add({
+            name,
+            imageUrl,
+            description: desc,
+            users,
+            createBy: email
+        })
+        console.log(reponse);
+    } catch (error) {
+        let errorCode = error.code;
+        let errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        throw error; 
+    }
+}
+async function getChatList(){
+    try {
+        const querySnapshot = await db
+            .collection("chat")
+            .get();
+        if (querySnapshot.docs.length === 0) {
+            return null;
+        }
+        return querySnapshot.docs;
+        
+    } catch (error) {
+        let errorCode = error.code;
+        let errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        throw error;
+    }
+}
+
+async function getChatDataByID(id){
+    try {
+        const querySnapshot = await db
+            .collection("chat")
+            .doc(id)
+            .get();
+        
+       return querySnapshot;
+           
+    } catch (error) {
+        let errorCode = error.code;
+        let errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        throw error;
+    }
+}
+export { createUser, getUserByEmail, updateUserData, createChat, getChatDataByID, getChatList} 

@@ -5,7 +5,7 @@ import { checkName, checkVNPhoneNumber } from "../../common/validdate.js"
 import { createUser, getUserByEmail, updateUserData } from "../firebase/store.js";
 import MainScreen from"../main/main.js";
 import app from "../../index.js";
-
+import * as _noti from "../../common/notify.js";
 
 class inforScreen {
     $container;
@@ -21,7 +21,7 @@ class inforScreen {
     $phone;
     $imageUrl;
 
-    $exitUser;
+    $userID;
 
     $btnSubmit;
 
@@ -89,56 +89,55 @@ class inforScreen {
         const user = getCurrentUser();
         const userStore = await getUserByEmail(user.email);
         if (userStore) {
-            this.$exitUser = true;
+            this.$userID = userStore.id;
             this.$name.setAttribute("value", userStore.name);
             this.$phone.setAttribute("value", userStore.phone);
             this.$imageUrl.setAttribute("value", userStore.imageUrl);
 
             this.$ava.style.backgroundImage = `url(${userStore.imageUrl})`;
         } else {
-            this.$exitUser = false;
-
+            this.$userID = "";
         }
     }
     handleChangeAva = (e) => {
         this.$ava.style.backgroundImage = `url(${e.target.value})`;
     }
     handleSubmit = async (e) => {
-        e.preventDefault();
-        const { name, phone, imageUrl } = e.target;
-        const user = getCurrentUser();
-        console.log(user);
-        let isError = false;
-        // validate
-        if (checkName(name.value) !== null) {
-            isError = true;
-            this.$name.setError(checkName(name.value));
-        }
-        else this.$name.setError("");
-
-        // vì validate số điện thoại phụ thuộc quốc gia, nhà mạng... nên ở đây em chỉ valid số điện thoại của Việt Nam
-
-        if (checkVNPhoneNumber(phone.value) !== null) {
-            isError = true;
-            this.$phone.setError(checkVNPhoneNumber(phone.value));
-        }
-        else this.$phone.setError("");
-        
-        // xử lý exit user
-        if(!isError){
-            if(this.$exitUser){
-                //setloading
-                await updateUserData(user.email, name.value, phone.value, imageUrl.value);
+        try {
+            e.preventDefault();
+            const { name, phone, imageUrl } = e.target;
+            const user = getCurrentUser();
+            console.log(user);
+            let isError = false;
+            // validate
+            if (checkName(name.value) !== null) {
+                isError = true;
+                this.$name.setError(checkName(name.value));
+            }
+            else this.$name.setError("");
+    
+            // vì validate số điện thoại phụ thuộc quốc gia, nhà mạng... nên ở đây em chỉ valid số điện thoại của Việt Nam
+    
+            if (checkVNPhoneNumber(phone.value) !== null) {
+                isError = true;
+                this.$phone.setError(checkVNPhoneNumber(phone.value));
+            }
+            else this.$phone.setError("");
+            
+            // xử lý exit user
+            if(!isError){
+                if(this.$userID){
+                    //setloading
+                    await updateUserData(this.$userID, name.value, phone.value, imageUrl.value);
+                } else {
+                    await createUser(user.email, name.value, phone.value, imageUrl.value);
+                }
                 const mainScreen = new MainScreen();
                 app.changeActiveScreen(mainScreen);
-                console.log(this.$exitUser);
-    
-            } else {
-                await createUser(user.email, name.value, phone.value, imageUrl.value);
-                console.log(this.$exitUser);
-                this.$exitUser=true;
-            }
-        } 
+            } 
+        } catch (error) {
+        _noti.error(error.errorCode, error.errorMessage);
+        }      
     }
 
     render(appEle) {
