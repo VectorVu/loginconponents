@@ -1,6 +1,5 @@
-import { getChatDataByID } from "../../../container/firebase/store.js";
-
-
+import {deleteChat} from"../../../container/firebase/store.js";
+import * as _noti from "../../../common/notify.js";
 class ChatRoom {
     $container;
 
@@ -17,7 +16,11 @@ class ChatRoom {
     $updateModal;
     $deleteModal;
 
-    constructor(name, imageUrl, desc) {
+    $chatID;
+
+    constructor(chatid, name, imageUrl, desc) {
+
+        this.$chatID = chatid;
         this.$container = document.createElement("div");
         this.$container.classList.add("chatRoom-contain");
 
@@ -57,7 +60,19 @@ class ChatRoom {
         this.renderDeleteModal();
 
     }
-
+    
+    handleDelete = (e)=>{
+        try {      
+            e.preventDefault();
+            document.getElementById("btn-delete").addEventListener("click", () =>{
+                deleteChat(this.$chatID);
+                const btnClose = document.getElementById("dele-close");
+                btnClose.click();
+            });
+        } catch (error) {
+            _noti.error(error.errorCode, error.errorMessage);
+        }  
+    }
     renderUpdateModal() {
         this.$updateModal = document.createElement("div");
         this.$updateModal.classList.add("modal", "fade");
@@ -96,7 +111,7 @@ class ChatRoom {
                 <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Delete Chat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button id ="dele-close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     Are your sure you want to delete this chat?

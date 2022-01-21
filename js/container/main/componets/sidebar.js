@@ -38,6 +38,7 @@ class SidebarComp {
         this.$listcontain.classList.add("cs-list");
 
         this.$chatItems = document.createElement("div");
+
         this.handleFetchChatList();
 
         this.renderModal();
@@ -46,9 +47,9 @@ class SidebarComp {
         let chatCount = await getChatList();
         chatCount.forEach(element => {
             let chatData = element.data();
-            console.log(chatData.name);
-            const chats = new ChatRoom(chatData.name, chatData.imageUrl, chatData.description)
+            const chats = new ChatRoom( element.id ,chatData.name, chatData.imageUrl, chatData.description);
             chats.render(this.$chatItems);
+            console.log(chats);
         });
 
     }
@@ -94,10 +95,12 @@ class SidebarComp {
     handleClose = () => {
         const name = document.getElementById("recipient-name");
         const imageUrl = document.getElementById("imageUrl-text");
+        const desc = document.getElementById("recipient-desc");
         const btnClose = document.getElementById("btn-icon-close");
 
         name.value = "";
         imageUrl.value = "";
+        desc.value="";
         btnClose.click();
     }
     
@@ -107,7 +110,6 @@ class SidebarComp {
             const desc = document.getElementById("recipient-desc");
             const imageUrl = document.getElementById("imageUrl-text");
             const user = getCurrentUser();
-            console.log(name.value, imageUrl.value);
             if (checkName(name.value)) {
                 _noti.warning("Chat name", checkName(name.value));
                 return;
@@ -120,7 +122,6 @@ class SidebarComp {
                 [user.email],
                 user.email
             );
-
             this.handleClose();
         } catch (error) {
             _noti.error(error.code, error.message);

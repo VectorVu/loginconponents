@@ -92,15 +92,10 @@ async function getChatList(){
     }
 }
 
-async function getChatDataByID(id){
+async function deleteChat(id){
     try {
-        const querySnapshot = await db
-            .collection("chat")
-            .doc(id)
-            .get();
+        await db.collection("chat").doc(id).delete();
         
-       return querySnapshot;
-           
     } catch (error) {
         let errorCode = error.code;
         let errorMessage = error.message;
@@ -108,4 +103,5 @@ async function getChatDataByID(id){
         throw error;
     }
 }
-export { createUser, getUserByEmail, updateUserData, createChat, getChatDataByID, getChatList} 
+
+export { createUser, getUserByEmail, updateUserData, createChat, getChatList, deleteChat } 
