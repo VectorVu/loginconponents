@@ -191,7 +191,12 @@ justify-content: center;
   background-color: #fff;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 19px 0px;
 }
+.cs-list{
+  max-height: 100%;
+  overflow: auto;
+}
 .sidebar-contain{
+ 
   display: flex;
   flex-direction: column;
   width: 30%;
@@ -233,7 +238,7 @@ justify-content: center;
 }
 .chatRoom-contain{
   display: flex;
-  width: 100%;
+  width: 90%;
   height: 70px;
   background-color: transparent;
   transition: all 0.25s ease-out;
@@ -265,6 +270,7 @@ justify-content: center;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+  background-image: url("../image/images.png");
 }
 .sub-contain{
   width: 60%;

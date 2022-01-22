@@ -1,9 +1,9 @@
 import ChatRoom from "./chatRoom.js";
 import { checkName } from "../../../common/validdate.js";
 import * as _noti from "../../../common/notify.js";
-import { createChat, getChatList } from "../../firebase/store.js";
+import { createChat } from "../../firebase/store.js";
 import { getCurrentUser } from "../../../container/firebase/auth.js";
-
+import db from "../../firebase/firebase.js"
 
 
 class SidebarComp {
@@ -17,6 +17,8 @@ class SidebarComp {
 
 
     $modal;
+
+    $objChats ={};
 
     constructor() {
         this.$container = document.createElement("div");
@@ -39,18 +41,39 @@ class SidebarComp {
 
         this.$chatItems = document.createElement("div");
 
-        this.handleFetchChatList();
+        this.setUPConversationListener();
+
 
         this.renderModal();
     }
-    async handleFetchChatList() {
-        let chatCount = await getChatList();
-        chatCount.forEach(element => {
-            let chatData = element.data();
-            const chats = new ChatRoom( element.id ,chatData.name, chatData.imageUrl, chatData.description);
-            chats.render(this.$chatItems);
-            console.log(chats);
+    setUPConversationListener(){
+      const user = getCurrentUser();
+      db.collection("chat").where("users", "array-contains", user.email)
+        .onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+                console.log(change.doc.data());
+                
+                const chatData = change.doc.data();
+                this.$listcontain.append(this.$chatItems);
+                const chats = new ChatRoom( change.doc.id ,chatData.name, chatData.imageUrl, chatData.users.length);
+                this.$objChats[change.doc.id]=chats;
+
+                chats.render(this.$chatItems);
+
+                console.log("added");
+                console.log(this.$objChats);
+            }
+            if (change.type === "modified") {
+                console.log(change.doc.data());
+                console.log("modified");
+
+            }
+            if (change.type === "removed") {
+                this.$objChats[change.doc.id].unMuont();
+            }
         });
+    });
 
     }
     renderModal() {
@@ -76,10 +99,6 @@ class SidebarComp {
                 <input type="text" class="form-control" id="recipient-name">
               </div>
               <div class="mb-3">
-              <label for="recipient-desc" class="col-form-label">Description:</label>
-              <input type="text" class="form-control" id="recipient-desc">
-            </div>
-              <div class="mb-3">
                 <label for="imageUrl-text" class="col-form-label">imageUrl  :</label>
                 <input type="text" class="form-control" id="imageUrl-text"></input>
               </div>
@@ -95,19 +114,16 @@ class SidebarComp {
     handleClose = () => {
         const name = document.getElementById("recipient-name");
         const imageUrl = document.getElementById("imageUrl-text");
-        const desc = document.getElementById("recipient-desc");
         const btnClose = document.getElementById("btn-icon-close");
 
         name.value = "";
         imageUrl.value = "";
-        desc.value="";
         btnClose.click();
     }
     
     handleCreate = async () => {
         try {
             const name = document.getElementById("recipient-name");
-            const desc = document.getElementById("recipient-desc");
             const imageUrl = document.getElementById("imageUrl-text");
             const user = getCurrentUser();
             if (checkName(name.value)) {
@@ -118,7 +134,6 @@ class SidebarComp {
             await createChat(
                 name.value,
                 imageUrl.value,
-                desc.value,
                 [user.email],
                 user.email
             );
@@ -135,7 +150,6 @@ class SidebarComp {
             this.$listcontain,
             this.$modal
         );
-        this.$listcontain.append(this.$chatItems);
 
         document.getElementById("btn-createChat").addEventListener("click", this.handleCreate);
         document.getElementById("btn-icon-close").addEventListener("click", this.handleClose);  

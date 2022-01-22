@@ -57,14 +57,14 @@ async function updateUserData( uid, name, phone, imageUrl) {
         throw error;
     }
 }
-async function createChat(name, imageUrl, desc, users, email){
+async function createChat(name, imageUrl, users, email){
     try {
         const reponse = await db.collection("chat").add({
             name,
             imageUrl,
-            description: desc,
             users,
-            createBy: email
+            creator: email,
+            updateAt: new Date().getTime()
         })
         console.log(reponse);
     } catch (error) {
@@ -74,23 +74,7 @@ async function createChat(name, imageUrl, desc, users, email){
         throw error; 
     }
 }
-async function getChatList(){
-    try {
-        const querySnapshot = await db
-            .collection("chat")
-            .get();
-        if (querySnapshot.docs.length === 0) {
-            return null;
-        }
-        return querySnapshot.docs;
-        
-    } catch (error) {
-        let errorCode = error.code;
-        let errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-        throw error;
-    }
-}
+
 
 async function deleteChat(id){
     try {
@@ -103,5 +87,28 @@ async function deleteChat(id){
         throw error;
     }
 }
-
-export { createUser, getUserByEmail, updateUserData, createChat, getChatList, deleteChat } 
+async function updateChat(id, name, imageUrl, users, email){
+    try {
+        const reponse = await db.collection("chat").doc(id).update({
+            name,
+            imageUrl,
+            description: desc,
+            users,
+            creator: email,
+        })
+        console.log(reponse);
+    } catch (error) {
+        let errorCode = error.code;
+        let errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        throw error; 
+    }
+}
+export { 
+    createUser, 
+    getUserByEmail, 
+    updateUserData, 
+    createChat, 
+    updateChat, 
+    deleteChat, 
+} 

@@ -59,8 +59,12 @@ class ChatRoom {
         this.renderUpdateModal();
         this.renderDeleteModal();
 
-    }
     
+
+    }
+    unMuont=()=>{
+        this.$container.remove();
+    }
     handleDelete = (e)=>{
         try {      
             e.preventDefault();
