@@ -87,14 +87,11 @@ async function deleteChat(id){
         throw error;
     }
 }
-async function updateChat(id, name, imageUrl, users, email){
+async function updateChat(id, name, imageUrl){
     try {
         const reponse = await db.collection("chat").doc(id).update({
             name,
             imageUrl,
-            description: desc,
-            users,
-            creator: email,
         })
         console.log(reponse);
     } catch (error) {

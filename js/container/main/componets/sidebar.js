@@ -43,31 +43,34 @@ class SidebarComp {
 
         this.setUPConversationListener();
 
-
         this.renderModal();
     }
+    
     setUPConversationListener(){
       const user = getCurrentUser();
       db.collection("chat").where("users", "array-contains", user.email)
         .onSnapshot((snapshot) => {
         snapshot.docChanges().forEach((change) => {
             if (change.type === "added") {
-                console.log(change.doc.data());
                 
-                const chatData = change.doc.data();
+                const chatData = {
+                  ...change.doc.data(),
+                  id:change.doc.id
+                }
                 this.$listcontain.append(this.$chatItems);
-                const chats = new ChatRoom( change.doc.id ,chatData.name, chatData.imageUrl, chatData.users.length);
+                const chats = new ChatRoom( chatData.id ,chatData.name, chatData.imageUrl, chatData.users.length);
                 this.$objChats[change.doc.id]=chats;
 
                 chats.render(this.$chatItems);
-
-                console.log("added");
-                console.log(this.$objChats);
+          
             }
             if (change.type === "modified") {
-                console.log(change.doc.data());
-                console.log("modified");
-
+              this.$objChats[change.doc.id].setupData(
+                change.doc.id, 
+                change.doc.data().name, 
+                change.doc.data().imageUrl, 
+                change.doc.data().users.length
+              );
             }
             if (change.type === "removed") {
                 this.$objChats[change.doc.id].unMuont();
