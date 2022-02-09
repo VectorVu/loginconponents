@@ -10,7 +10,15 @@ async function createUser(email, name, phone, imageUrl) {
             phone,
             imageUrl,
         });
+        localStorage.removeItem("auth-info");
+        localStorage.setItem("auth-info", JSON.stringify({
+            email,
+            name,
+            phone,
+            imageUrl
+        }));
         console.log(response);
+
     } catch (error) {
         let errorCode = error.code;
         let errorMessage = error.message;
@@ -40,16 +48,24 @@ async function getUserByEmail(email) {
     }
 }
 
-async function updateUserData( uid, name, phone, imageUrl) {
+async function updateUserData( uid, email, name, phone, imageUrl) {
     try {
         const reponse = await db
             .collection("users")
             .doc(uid)
             .update({
+                email,
                 name,
                 phone,
                 imageUrl,
             });
+            localStorage.removeItem("auth-info");
+            localStorage.setItem("auth-info", JSON.stringify({
+                email,
+                name,
+                phone,
+                imageUrl
+            }));
     } catch (error) {
         let errorCode = error.code;
         let errorMessage = error.message;
@@ -64,9 +80,8 @@ async function createChat(name, imageUrl, users, email){
             imageUrl,
             users,
             creator: email,
-            updateAt: new Date().getTime()
+            updateAt: firebase.firestore.FieldValue.serverTimestamp()
         })
-        console.log(reponse);
     } catch (error) {
         let errorCode = error.code;
         let errorMessage = error.message;
@@ -87,18 +102,87 @@ async function deleteChat(id){
         throw error;
     }
 }
-async function updateChat(id, name, imageUrl){
+async function updateChat(id, name, imageUrl, users, email){
     try {
         const reponse = await db.collection("chat").doc(id).update({
             name,
             imageUrl,
+            users,
+            creator:email,
+            updateAt: new Date().getTime()
         })
-        console.log(reponse);
     } catch (error) {
         let errorCode = error.code;
         let errorMessage = error.message;
         console.log(errorCode, errorMessage);
         throw error; 
+    }
+}
+async function addUserByEmail(chat, newEmail){
+    try {
+        const reponse = await db
+            .collection("chat")
+            .doc(chat.id)
+            .update({
+                ...chat,
+                users:[...chat.users, newEmail],
+                updateAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+    } catch (error) {
+        let errorCode = error.code;
+        let errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        throw error;
+    }
+}
+async function confirmAddUser(chat){
+    try {
+       const result = await Swal.fire({
+            title: 'Submit your email',
+            input: 'text',
+            inputAttributes: {
+              autocapitalize: 'off'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Add',
+            showLoaderOnConfirm: true,
+            preConfirm: async (email) => {
+             const user = await getUserByEmail(email);
+             return user;
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+          })
+          console.log(result);
+          if (result.value){
+              console.log(result.value);
+              const {email} = result.value;
+              const reponse = await addUserByEmail(chat, email);
+          } else{
+              _noti.error("Oops...", "Your email is inexit!");
+              return null;
+          }
+    } catch (error) {
+        let errorCode = error.code;
+        let errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        throw error;
+    }
+}
+async function sendMessage (sender, content, convID, imgUrl){
+    try {
+        const reponse = await db.collection("message").add({
+            sender, 
+            content, 
+            convID,
+            sendAt: firebase.firestore.FieldValue.serverTimestamp(),
+            avaSend: imgUrl
+        });
+        console.log(reponse);
+    } catch (error) {
+        let errorCode = error.code;
+        let errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        throw error;
     }
 }
 export { 
@@ -107,5 +191,7 @@ export {
     updateUserData, 
     createChat, 
     updateChat, 
-    deleteChat, 
+    deleteChat,
+    confirmAddUser,
+    sendMessage 
 } 

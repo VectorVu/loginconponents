@@ -42,6 +42,7 @@ class myModal{
 
         this.$title = document.createElement("h5");
         this.$title.classList.add("modal-title");
+        this.$title.id="mdtit"+id;
 
         this.$close = document.createElement("button");
         this.$close.classList.add("btn-close");
@@ -62,9 +63,7 @@ class myModal{
           
             // header
             this.$close.id = `upclose${id}`;
-           
-            this.$title.innerText = `Update ${chatName} information`;
-
+        
             // body
             
             this.$form = document.createElement("form");

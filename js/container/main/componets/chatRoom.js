@@ -1,6 +1,5 @@
 import { deleteChat, updateChat } from "../../../container/firebase/store.js";
 import * as _noti from "../../../common/notify.js";
-import ButtonComponent from "../../../conponent/button.js";
 import myModal from "./myModal.js";
 class ChatRoom {
     $container;
@@ -10,43 +9,37 @@ class ChatRoom {
     $roomName;
     $description;
     $subContain;
+    // data
+
+    $id;
+    $name;
+    $imageUrl;
+    $desc;
+    $users;
+    $creator;
+
+    $item;
 
     $btnContain;
     $btnUpdate;
     $btnDelete;
+    $btnAddUser;
 
     $updateModal;
-    $updateContent;
-    $updateDialog;
-    $updateHeader;
-    $updateBody;
-    $updateFooter;
-
-    $updateNameContain;
-    $updateNameLabel;
-    $updateNameInput;
-
-
-    $updateUrlContain;
-    $updateUrlLabel;
-    $updateUrlInput;
-
-
-    $updateTitle;
-    $updateClose;
-    $btnUpdateModal;
-    $updateForm;
-
 
     $deleteModal;
 
     $chatData = {};
 
-    constructor(chatid, name, imageUrl, desc) {
+    $callBackAdd;
+    $callBackActive;
+
+    constructor(chat, cbAdd, cbActive) {
 
 
         this.$container = document.createElement("div");
         this.$container.classList.add("chatRoom-contain");
+        this.$container.addEventListener("click", this.handleActive);
 
         this.$imageContain = document.createElement("div");
         this.$imageContain.classList.add("image-container");
@@ -65,50 +58,76 @@ class ChatRoom {
         this.$btnContain.classList.add("btnContain");
 
         this.$btnUpdate = document.createElement("div");
-        this.$btnUpdate.classList.add("btn-update");
+        this.$btnUpdate.classList.add("btn-popup");
         this.$btnUpdate.setAttribute("data-bs-toggle", "modal");
-        this.$btnUpdate.setAttribute("data-bs-target", `#update${chatid}`);
+        this.$btnUpdate.setAttribute("data-bs-target", `#update${chat.id}`);
         this.$btnUpdate.innerText = "U";
         this.$btnUpdate.addEventListener("click", this.handleUpdate);
 
+
+        this.$btnAddUser = document.createElement("div");
+        this.$btnAddUser.classList.add("btn-popup");
+        this.$btnAddUser.innerText = "+";
+        this.$btnAddUser.addEventListener("click", this.handleAddUser);
+
+
         this.$btnDelete = document.createElement("div");
-        this.$btnDelete.classList.add("btn-delete");
+        this.$btnDelete.classList.add("btn-popup");
         this.$btnDelete.setAttribute("data-bs-toggle", "modal");
-        this.$btnDelete.setAttribute("data-bs-target", `#delete${chatid}`);
+        this.$btnDelete.setAttribute("data-bs-target", `#delete${chat.id}`);
         this.$btnDelete.addEventListener("click", this.handleDelete);
         this.$btnDelete.innerText = "-";
-        this.setupData(chatid, name, imageUrl, desc);
+        this.setupData(chat, cbAdd, cbActive);
 
 
-        this.$updateModal = new myModal(chatid, "update", "form", name);
-        // this.renderUpdateModal();
-        this.$deleteModal = new myModal(chatid, "delete", "noti", name);
-        // this.renderDeleteModal();
+        this.$updateModal = new myModal(chat.id, "update", "form", chat.name);
+
+        this.$deleteModal = new myModal(chat.id, "delete", "noti", chat.name);
+
+
     }
-    setupData = (chatid, name, imageUrl, desc) => {
-        this.$chatData = {
-            chatid,
-            name,
-            imageUrl,
-            desc
-        };
+    setupData = (chat, cbAdd, cbActive) => {
+        this.$id = chat.id,
+        this.$name = chat.name,
+        this.$imageUrl = chat.imageUrl,
+        this.$desc = chat.users.length,
+        this.$users = chat.users,
+        this.$creator = chat.creator
+
+        this.$item = chat;
+
         this.fillDataToEle();
+        this.$callBackAdd = cbAdd;
+        this.$callBackActive = cbActive;
     }
     fillDataToEle = () => {
-        this.$chatAva.style.backgroundImage = `url(${this.$chatData.imageUrl})`;
-        this.$roomName.innerText = this.$chatData.name;
-        this.$description.innerText = this.$chatData.desc +" users";
+        this.$chatAva.style.backgroundImage = `url(${this.$imageUrl})`;
+        this.$roomName.innerText = this.$name;
+        this.$description.innerText = this.$desc + " users";
     }
-
+    handleAddUser = () => {
+        this.$callBackAdd(this.$item);
+    }
+    handleActive = () => {
+        this.$callBackActive(this.$item);
+    }
     handleUpdate = () => {
-        let udName = document.getElementById("Name"+this.$chatData.chatid);
-        udName.value = this.$chatData.name;
-        let udUrl = document.getElementById("Url"+this.$chatData.chatid);
-        udUrl.value = this.$chatData.imageUrl;
-        document.getElementById("upBtn"+this.$chatData.chatid).addEventListener("click", () => {
+        let mdname = document.getElementById("mdtit"+this.$id);
+        mdname.innerText = `Update ${this.$name} information`;
+        let udName = document.getElementById("Name" + this.$id);
+        udName.value = this.$name;
+        let udUrl = document.getElementById("Url" + this.$id);
+        udUrl.value = this.$imageUrl;
+        document.getElementById("upBtn" + this.$id).addEventListener("click", () => {
             try {
-                updateChat(this.$chatData.chatid, udName.value, udUrl.value);
-                const btnClose = document.getElementById("upclose"+this.$chatData.chatid);
+                updateChat(
+                    this.$id,
+                    udName.value, 
+                    udUrl.value,
+                    this.$users,
+                    this.$creator
+                );
+                const btnClose = document.getElementById("upclose" + this.$id);
                 btnClose.click();
             } catch (error) {
                 _noti.error(error.errorCode, error.errorMessage);
@@ -121,10 +140,10 @@ class ChatRoom {
     }
     handleDelete = (e) => {
         e.preventDefault();
-        document.getElementById("deBtn"+this.$chatData.chatid).addEventListener("click", () => {
+        document.getElementById("deBtn" + this.$id).addEventListener("click", () => {
             try {
-                deleteChat(this.$chatData.chatid);
-                const btnClose = document.getElementById("declose"+this.$chatData.chatid);
+                deleteChat(this.$id);
+                const btnClose = document.getElementById("declose" + this.$id);
                 btnClose.click();
             } catch (error) {
                 _noti.error(error.errorCode, error.errorMessage);
@@ -138,7 +157,7 @@ class ChatRoom {
         this.$container.append(this.$imageContain, this.$subContain, this.$btnContain);
         this.$imageContain.appendChild(this.$chatAva);
         this.$subContain.append(this.$roomName, this.$description);
-        this.$btnContain.append(this.$btnUpdate, this.$btnDelete, this.$updateModal.render(),this.$deleteModal.render());
+        this.$btnContain.append(this.$btnUpdate, this.$btnAddUser, this.$btnDelete, this.$updateModal.render(), this.$deleteModal.render());
     }
 }
 export default ChatRoom;

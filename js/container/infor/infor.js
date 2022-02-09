@@ -105,7 +105,7 @@ class inforScreen {
     handleSubmit = async (e) => {
         try {
             e.preventDefault();
-            const { name, phone, imageUrl } = e.target;
+            const { email, name, phone, imageUrl } = e.target;
             const user = getCurrentUser();
             console.log(user);
             let isError = false;
@@ -128,7 +128,7 @@ class inforScreen {
             if(!isError){
                 if(this.$userID){
                     //setloading
-                    await updateUserData(this.$userID, name.value, phone.value, imageUrl.value);
+                    await updateUserData(this.$userID, email.value, name.value, phone.value, imageUrl.value);
                 } else {
                     await createUser(user.email, name.value, phone.value, imageUrl.value);
                 }

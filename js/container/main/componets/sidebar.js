@@ -1,7 +1,7 @@
 import ChatRoom from "./chatRoom.js";
 import { checkName } from "../../../common/validdate.js";
 import * as _noti from "../../../common/notify.js";
-import { createChat } from "../../firebase/store.js";
+import { createChat, confirmAddUser } from "../../firebase/store.js";
 import { getCurrentUser } from "../../../container/firebase/auth.js";
 import db from "../../firebase/firebase.js"
 
@@ -20,7 +20,10 @@ class SidebarComp {
 
     $objChats ={};
 
-    constructor() {
+    $callbackActive;
+
+    constructor(cbActive) {
+        this.$callbackActive = cbActive;
         this.$container = document.createElement("div");
         this.$container.classList.add("sidebar-contain", "d-flex");
 
@@ -44,21 +47,39 @@ class SidebarComp {
         this.setUPConversationListener();
 
         this.renderModal();
+
+        
+
     }
-    
+    handleAdd = async (item)=>{
+      try {
+        const response = await confirmAddUser(item);
+        console.log(response);
+      } catch (error) {
+        _noti.error(error.code, error.message);
+      }
+    }
+    handleActive =(item)=>{
+      if(this.$callbackActive) this.$callbackActive(item);
+      // console.log(item);
+    }
     setUPConversationListener(){
       const user = getCurrentUser();
       db.collection("chat").where("users", "array-contains", user.email)
+      .orderBy("updateAt", "desc")
         .onSnapshot((snapshot) => {
         snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-                
+            if (change.type === "added") {  
                 const chatData = {
                   ...change.doc.data(),
                   id:change.doc.id
                 }
                 this.$listcontain.append(this.$chatItems);
-                const chats = new ChatRoom( chatData.id ,chatData.name, chatData.imageUrl, chatData.users.length);
+                const chats = new ChatRoom(
+                  chatData,
+                  this.handleAdd,
+                  this.handleActive
+                   );
                 this.$objChats[change.doc.id]=chats;
 
                 chats.render(this.$chatItems);
@@ -66,10 +87,12 @@ class SidebarComp {
             }
             if (change.type === "modified") {
               this.$objChats[change.doc.id].setupData(
-                change.doc.id, 
-                change.doc.data().name, 
-                change.doc.data().imageUrl, 
-                change.doc.data().users.length
+                {
+                ...change.doc.data(),
+                id:change.doc.id
+                },
+                this.handleAdd,
+                this.handleActive
               );
             }
             if (change.type === "removed") {
@@ -156,6 +179,7 @@ class SidebarComp {
 
         document.getElementById("btn-createChat").addEventListener("click", this.handleCreate);
         document.getElementById("btn-icon-close").addEventListener("click", this.handleClose);  
+        
     }
 }
 export default SidebarComp;

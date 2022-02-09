@@ -13,8 +13,11 @@ class App {
             let screen;
             if (user && user.emailVerified) {
              screen = new MainScreen();
-
+            
             //  screen = new inforScreen();
+
+            //  screen = new LoginScreen();
+
             } else if (user && !user.emailVerified) {
                 screen = new verifiScreen();
             } else {
@@ -36,4 +39,5 @@ class App {
 }
 const app = new App();
 export default app;
+
 
